@@ -1,3 +1,4 @@
+DROP DATABASE IF EXISTS wyrdane;
 CREATE DATABASE IF NOT EXISTS wyrdane CHARACTER SET utf8mb4;
 USE wyrdane;
 
@@ -15,18 +16,22 @@ CREATE TABLE users (
 );
 
 CREATE TABLE cards (
-  id INT AUTO_INCREMENT PRIMARY KEY,   
+  id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(150) NOT NULL,
-  race VARCHAR(20) NOT NULL,               
-  card_type VARCHAR(20) NOT NULL,          
-  lane VARCHAR(10),                        
+  race VARCHAR(20) NOT NULL,
+  card_type VARCHAR(20) NOT NULL,
+  lane VARCHAR(10),
   cost INT,
-  attack INT,                              
-  hp INT,                                  
+  attack INT,
+  hp INT,
   rarity VARCHAR(20),
-  charges INT,                             
+  charges INT,
   effect TEXT,
-  flavor TEXT
+  flavor TEXT,
+  image_path TEXT,
+  INDEX idx_cards_type (card_type),
+  INDEX idx_cards_race (race),
+  INDEX idx_cards_rarity (rarity)
 );
 
 CREATE TABLE decks (
@@ -43,5 +48,6 @@ CREATE TABLE deck_cards (
   card_id INT NOT NULL,
   quantity INT DEFAULT 1,
   FOREIGN KEY (deck_id) REFERENCES decks(id) ON DELETE CASCADE,
-  FOREIGN KEY (card_id) REFERENCES cards(id)
+  FOREIGN KEY (card_id) REFERENCES cards(id) ON DELETE CASCADE,
+  UNIQUE KEY unique_deck_card (deck_id, card_id)
 );
