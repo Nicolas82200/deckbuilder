@@ -592,6 +592,13 @@
 	background: var(--scrollbar-grabber-hi);
 }
 
+.deckbuilder-save-error {
+	color: #e05555;
+	font-family: "Crimson Text", serif;
+	font-size: 14px;
+	text-align: center;
+	margin: 0;
+}
 /* --- Responsive --- */
 @media (max-width: 900px) {
 	.deckbuilder-body {
