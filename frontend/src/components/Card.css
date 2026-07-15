@@ -175,11 +175,11 @@
 }
 
 /* --- BorderFrame (texture décorative par-dessus tout) --- */
-.card-border-frame {
+/* .card-border-frame {
 	position: absolute;
 	left: -5px;
 	top: -7.5px;
 	width: 260px;
 	height: 390px;
 	pointer-events: none;
-}
+} */
