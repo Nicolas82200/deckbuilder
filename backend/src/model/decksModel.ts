@@ -14,6 +14,14 @@ const findByUserId = async (userId: number): Promise<DeckRow[]> => {
 	return rows;
 };
 
+const deleteDeck = async (userId: number, decksId: number): Promise<void> => {
+	await db.query("DELETE FROM deck_cards WHERE deck_id = ?", [decksId]);
+	await db.query("DELETE FROM decks WHERE id = ? AND user_id = ?", [
+		decksId,
+		userId,
+	]);
+};
+
 const findCardsByDeckId = async (deckId: number): Promise<DeckCardRow[]> => {
 	const [rows] = await db.query<DeckCardRow[]>(
 		`SELECT dc.deck_id, dc.card_id, dc.quantity,
@@ -60,7 +68,6 @@ const replaceCards = async (
 		[values],
 	);
 };
-
 export {
 	findByUserId,
 	findCardsByDeckId,
@@ -68,4 +75,5 @@ export {
 	create,
 	updateName,
 	replaceCards,
+	deleteDeck,
 };

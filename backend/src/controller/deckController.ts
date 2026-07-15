@@ -8,6 +8,7 @@ import {
 	create,
 	updateName,
 	replaceCards,
+	deleteDeck,
 } from "../model/decksModel";
 
 const getUserId = (req: Request): number | null => {
@@ -110,4 +111,33 @@ const save = async (req: Request, res: Response): Promise<void> => {
 	}
 };
 
-export { getUserDecks, getOne, save };
+const remove = async (req: Request, res: Response): Promise<void> => {
+	try {
+		const userId = getUserId(req);
+		if (!userId) {
+			res.status(401).json({ message: "Non authentifié" });
+			return;
+		}
+
+		const deckId = Number(req.params.id);
+		if (Number.isNaN(deckId)) {
+			res.status(400).json({ message: "Id invalide" });
+			return;
+		}
+
+		const deck = await findById(deckId);
+		if (!deck || deck.user_id !== userId) {
+			res.status(404).json({ message: "Deck introuvable" });
+			return;
+		}
+
+		await deleteDeck(userId, deckId);
+
+		res.status(204).send();
+	} catch (error) {
+		console.error(error);
+		res.status(500).json({ message: "Server error" });
+	}
+};
+
+export { getUserDecks, getOne, save, remove };
