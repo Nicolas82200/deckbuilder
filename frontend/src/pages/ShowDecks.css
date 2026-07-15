@@ -8,7 +8,14 @@
 	box-sizing: border-box;
 	background: rgba(0, 0, 0, 0.784);
 }
-
+.deck {
+	display: flex;
+}
+.delete {
+	margin-left: 1em;
+	background: none;
+	border: none;
+}
 .decklist-panel {
 	width: 100%;
 	max-width: 780px;

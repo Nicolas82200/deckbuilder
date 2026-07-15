@@ -56,6 +56,18 @@ const DeckList = () => {
 	const totalCards = (deck: DeckWithCards) =>
 		deck.cards.reduce((sum, c) => sum + c.quantity, 0);
 
+	async function removeFromDeckList(deckId: number) {
+		try {
+			await axios.delete(`http://localhost:3000/api/decks/${deckId}`, {
+				withCredentials: true,
+			});
+			setDecks((prev) => prev.filter((deck) => deck.id !== deckId));
+		} catch (err) {
+			console.error(err);
+			setError("Impossible de supprimer ce deck");
+		}
+	}
+
 	return (
 		<div className="decklist">
 			<div className="decklist-panel">
@@ -80,17 +92,27 @@ const DeckList = () => {
 					{!loading &&
 						!error &&
 						decks.map((deck) => (
-							<button
-								type="button"
-								key={deck.id}
-								className="deck-item"
-								onClick={() => navigate(`/decks/${deck.id}`)}
-							>
-								<span className="deck-item-name">{deck.name}</span>
-								<span className="deck-item-count">
-									{totalCards(deck)} cartes
-								</span>
-							</button>
+							<div className="deck" key={deck.id}>
+								<button
+									type="button"
+									key={deck.id}
+									className="deck-item"
+									onClick={() => navigate(`/decks/${deck.id}`)}
+								>
+									<span className="deck-item-name">{deck.name}</span>
+									<span className="deck-item-count">
+										{totalCards(deck)} cartes
+									</span>
+								</button>
+								<button
+									type="button"
+									className="btn btn-icon"
+									onClick={() => removeFromDeckList(deck.id)}
+									title={`Retirer ${deck.name}`}
+								>
+									🗑
+								</button>
+							</div>
 						))}
 				</div>
 
