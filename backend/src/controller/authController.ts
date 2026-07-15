@@ -1,4 +1,5 @@
-import type { Request, Response } from "express";
+import { Request, Response } from "express";
+
 import validateLogin from "../validator/loginValidator";
 import { findByEmail } from "../model/userModel";
 import { verifyPassword } from "../helper/argonHelper";

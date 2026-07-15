@@ -1,7 +1,8 @@
-import { hashPassword } from "../helper/argonHelper";
-import validateUser from "../validator/userValidator";
-import type { Request, Response } from "express";
+import { Request, Response } from "express";
+
 import { findOne, addOne } from "../model/userModel";
+import validateUser from "../validator/userValidator";
+import { hashPassword } from "../helper/argonHelper";
 
 const getOne = async (req: Request, res: Response): Promise<void> => {
 	const id = Number(req.params.id);

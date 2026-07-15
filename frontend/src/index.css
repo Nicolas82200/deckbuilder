@@ -31,7 +31,25 @@
 	--scrollbar-grabber-hi: rgba(199, 148, 26, 0.9);
 }
 
-body {
+html,
+body,
+#root {
 	margin: 0;
 	padding: 0;
+	width: 100%;
+	min-height: 100vh;
+	body {
+		background: transparent;
+	}
+}
+
+h1,
+h2,
+h3 {
+	font-family: "MedievalSharp", "Cinzel Decorative", serif;
+	font-weight: 700;
+	font-size: 32px;
+	letter-spacing: 0.02em;
+	text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.8);
+	margin: 0;
 }

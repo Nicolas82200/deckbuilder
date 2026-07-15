@@ -1,32 +1,97 @@
 import axios from "axios";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+import AuthPanel from "../components/AuthPanel";
+import "./Home.css";
+
+type View = "home" | "auth";
+type Phase = "idle" | "out" | "in";
 
 const Home = () => {
 	const navigate = useNavigate();
+	const [authenticated, setAuthenticated] = useState<boolean | null>(null);
+	const [view, setView] = useState<View>("home");
+	const [pendingView, setPendingView] = useState<View | null>(null);
+	const [phase, setPhase] = useState<Phase>("idle");
+
+	useEffect(() => {
+		axios
+			.get("/api/auth/authVerif", { withCredentials: true })
+			.then(() => setAuthenticated(true))
+			.catch(() => setAuthenticated(false));
+	}, []);
 
 	const handleLogout = async () => {
 		try {
-			await axios.get("http://localhost:3000/api/auth/logout", {
-				withCredentials: true,
-			});
-			navigate("/login");
+			await axios.get("/api/auth/logout", { withCredentials: true });
+			setAuthenticated(false);
 		} catch (err) {
 			console.error(err);
 		}
 	};
 
+	const goTo = (next: View) => {
+		if (phase !== "idle" || next === view) return;
+		setPendingView(next);
+		setPhase("out");
+	};
+
+	const handleAnimationEnd = () => {
+		if (phase === "out" && pendingView) {
+			setView(pendingView);
+			setPendingView(null);
+			setPhase("in");
+		} else if (phase === "in") {
+			setPhase("idle");
+		}
+	};
+
+	const handleDecksClick = () => {
+		if (authenticated) {
+			navigate("/decks");
+		} else {
+			goTo("auth");
+		}
+	};
+
 	return (
-		<div>
-			<h1>WildWalker</h1>
-			<p>Page d'accueil (publique)</p>
-			<nav style={{ display: "flex", gap: 16, justifyContent: "center" }}>
-				<Link to="/login">Se connecter</Link>
-				<Link to="/register">Creer un compte</Link>
-				<Link to="/decks">Voir les films</Link>
-				<button type="button" onClick={handleLogout}>
-					Deconnexion
-				</button>
-			</nav>
+		<div className="home">
+			<div
+				className={`home-stage ${phase !== "idle" ? `anim-${phase}` : ""}`}
+				onAnimationEnd={handleAnimationEnd}
+			>
+				{view === "home" && (
+					<div className="home-view">
+						<h1>WYRDANE DECK BUILDER</h1>
+						<p>Crée vos decks</p>
+						<nav className="home-nav">
+							<button
+								type="button"
+								className="btn btn-primary"
+								onClick={handleDecksClick}
+							>
+								Voir vos decks
+							</button>
+							{authenticated && (
+								<button type="button" className="btn" onClick={handleLogout}>
+									Deconnexion
+								</button>
+							)}
+						</nav>
+					</div>
+				)}
+
+				{view === "auth" && (
+					<AuthPanel
+						onCancel={() => goTo("home")}
+						onSuccess={() => {
+							setAuthenticated(true);
+							navigate("/decks");
+						}}
+					/>
+				)}
+			</div>
 		</div>
 	);
 };
