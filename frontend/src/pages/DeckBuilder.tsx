@@ -3,7 +3,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import type { CardData } from "../types";
 import "./DeckBuilder.css";
-import Card from "../components/Card";
 
 type DeckEntry = {
 	card: CardData;
@@ -16,7 +15,6 @@ type SortDirection = "asc" | "desc";
 const MIN_DECK_SIZE = 40;
 const MAX_DECK_SIZE = 60;
 const MAX_COPIES_PER_CARD = 4;
-const PREVIEW_HEIGHT = 390; // hauteur approx. du composant Card
 
 const RARITY_ORDER: Record<string, number> = {
 	Commune: 0,
@@ -49,42 +47,6 @@ export default function DeckBuilder() {
 		null,
 	);
 	const fileInputRef = useRef<HTMLInputElement>(null);
-
-	const catalogRef = useRef<HTMLDivElement>(null);
-	const gridRef = useRef<HTMLDivElement>(null);
-	const [hoveredCard, setHoveredCard] = useState<CardData | null>(null);
-	const [previewTop, setPreviewTop] = useState(0);
-
-	function handleCardHover(
-		e: React.MouseEvent<HTMLButtonElement>,
-		card: CardData,
-	) {
-		const catalogEl = catalogRef.current;
-		const gridEl = gridRef.current;
-		if (!catalogEl || !gridEl) return;
-
-		const catalogRect = catalogEl.getBoundingClientRect();
-		const gridRect = gridEl.getBoundingClientRect();
-		const cardRect = e.currentTarget.getBoundingClientRect();
-
-		// Centre le preview verticalement sur la carte survolée
-		let top =
-			cardRect.top - catalogRect.top - (PREVIEW_HEIGHT - cardRect.height) / 2;
-
-		// Empêche de déborder au-dessus de la grille (donc sur les filtres)
-		const minTop = gridRect.top - catalogRect.top;
-		// Empêche de déborder en bas du conteneur catalogue
-		const maxTop = catalogRect.height - PREVIEW_HEIGHT - 8;
-
-		top = Math.min(Math.max(top, minTop), Math.max(minTop, maxTop));
-
-		setPreviewTop(top);
-		setHoveredCard(card);
-	}
-
-	function handleCardLeave() {
-		setHoveredCard(null);
-	}
 
 	useEffect(() => {
 		let cancelled = false;
@@ -394,7 +356,7 @@ export default function DeckBuilder() {
 			</header>
 
 			<div className="deckbuilder-body">
-				<section className="deckbuilder-catalog" ref={catalogRef}>
+				<section className="deckbuilder-catalog">
 					<div className="catalog-search">
 						<span aria-hidden="true">🔍</span>
 						<input
@@ -481,16 +443,13 @@ export default function DeckBuilder() {
 						</button>
 					</div>
 
-					<div className="catalog-grid" ref={gridRef}>
-						{filteredCards.map((card, index) => (
+					<div className="catalog-grid">
+						{filteredCards.map((card) => (
 							<button
 								type="button"
 								key={card.id}
 								className="mini-card"
-								style={{ animationDelay: `${Math.min(index, 20) * 30}ms` }}
 								onClick={() => addToDeck(card)}
-								onMouseEnter={(e) => handleCardHover(e, card)}
-								onMouseLeave={handleCardLeave}
 								title={`Ajouter ${card.name} au deck`}
 							>
 								<span className="mini-card-cost">{card.cost ?? "-"}</span>
@@ -527,12 +486,6 @@ export default function DeckBuilder() {
 							</p>
 						)}
 					</div>
-
-					{hoveredCard && (
-						<div className="catalog-card-preview" style={{ top: previewTop }}>
-							<Card card={hoveredCard} />
-						</div>
-					)}
 				</section>
 
 				<aside className="deckbuilder-sidebar">

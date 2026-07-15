@@ -272,10 +272,12 @@
 	text-align: left;
 	font: inherit;
 	color: var(--gold);
-	transition:
-		transform 0.12s ease,
-		border-color 0.12s ease,
-		box-shadow 0.12s ease;
+}
+
+.mini-card--visible {
+	opacity: 1;
+	transform: translateY(0) scale(1);
+	animation: none;
 }
 
 .mini-card:hover {
@@ -623,31 +625,4 @@
 	pointer-events: none;
 	filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.6));
 	animation: previewFadeIn 0.15s ease;
-}
-
-@keyframes previewFadeIn {
-	from {
-		opacity: 0;
-		transform: scale(0.92);
-	}
-	to {
-		opacity: 1;
-		transform: scale(1);
-	}
-}
-/* --- Animation d'apparition des cartes --- */
-@keyframes cardAppear {
-	from {
-		opacity: 0;
-		transform: translateY(10px) scale(0.95);
-	}
-	to {
-		opacity: 1;
-		transform: translateY(0) scale(1);
-	}
-}
-
-.mini-card {
-	/* ... styles existants ... */
-	animation: cardAppear 0.35s ease backwards;
 }
