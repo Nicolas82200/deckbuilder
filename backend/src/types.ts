@@ -6,7 +6,34 @@ export interface User {
 	email: string;
 	password_hash: string;
 }
+export interface Decks {
+	id: number;
+	user_id: number;
+	name: string;
+	created_at: string;
+}
 
+export interface DeckCard {
+	deck_id: number;
+	card_id: number;
+	quantity: number;
+	name: string;
+	race: string;
+	card_type: string;
+	lane: string | null;
+	cost: number;
+	attack: number | null;
+	hp: number | null;
+	rarity: string;
+	charges: number | null;
+	effect: string | null;
+	flavor: string | null;
+	image_path: string;
+}
+
+export interface DeckWithCards extends Decks {
+	cards: DeckCard[];
+}
 export interface Cards {
 	id: number;
 	name: string;
