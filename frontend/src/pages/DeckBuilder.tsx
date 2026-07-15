@@ -366,82 +366,83 @@ export default function DeckBuilder() {
 							onChange={(e) => setSearch(e.target.value)}
 						/>
 					</div>
+					<section className="all-filters">
+						<div className="catalog-filters">
+							<select
+								value={raceFilter}
+								onChange={(e) => setRaceFilter(e.target.value)}
+							>
+								<option value="">Race</option>
+								{races.map((r) => (
+									<option key={r} value={r}>
+										{r}
+									</option>
+								))}
+							</select>
+							<select
+								value={typeFilter}
+								onChange={(e) => setTypeFilter(e.target.value)}
+							>
+								<option value="">Type</option>
+								{types.map((t) => (
+									<option key={t} value={t}>
+										{t}
+									</option>
+								))}
+							</select>
+							<select
+								value={costFilter}
+								onChange={(e) => setCostFilter(e.target.value)}
+							>
+								<option value="">Coût</option>
+								{costs.map((c) => (
+									<option key={c} value={c}>
+										{c}
+									</option>
+								))}
+							</select>
+							<select
+								value={rarityFilter}
+								onChange={(e) => setRarityFilter(e.target.value)}
+							>
+								<option value="">Rareté</option>
+								{rarities.map((r) => (
+									<option key={r} value={r}>
+										{r}
+									</option>
+								))}
+							</select>
+							<button
+								type="button"
+								className="btn btn-icon"
+								onClick={resetFilters}
+								title="Réinitialiser les filtres"
+							>
+								↻
+							</button>
+						</div>
 
-					<div className="catalog-filters">
-						<select
-							value={raceFilter}
-							onChange={(e) => setRaceFilter(e.target.value)}
-						>
-							<option value="">Race</option>
-							{races.map((r) => (
-								<option key={r} value={r}>
-									{r}
-								</option>
-							))}
-						</select>
-						<select
-							value={typeFilter}
-							onChange={(e) => setTypeFilter(e.target.value)}
-						>
-							<option value="">Type</option>
-							{types.map((t) => (
-								<option key={t} value={t}>
-									{t}
-								</option>
-							))}
-						</select>
-						<select
-							value={costFilter}
-							onChange={(e) => setCostFilter(e.target.value)}
-						>
-							<option value="">Coût</option>
-							{costs.map((c) => (
-								<option key={c} value={c}>
-									{c}
-								</option>
-							))}
-						</select>
-						<select
-							value={rarityFilter}
-							onChange={(e) => setRarityFilter(e.target.value)}
-						>
-							<option value="">Rareté</option>
-							{rarities.map((r) => (
-								<option key={r} value={r}>
-									{r}
-								</option>
-							))}
-						</select>
-						<button
-							type="button"
-							className="btn btn-icon"
-							onClick={resetFilters}
-							title="Réinitialiser les filtres"
-						>
-							↻
-						</button>
-					</div>
-
-					<div className="catalog-sort">
-						<span>Trier par :</span>
-						<select
-							value={sortField}
-							onChange={(e) => setSortField(e.target.value as SortField)}
-						>
-							<option value="name">Nom</option>
-							<option value="cost">Coût</option>
-							<option value="attack">Attaque</option>
-							<option value="rarity">Rareté</option>
-						</select>
-						<button
-							type="button"
-							className="btn btn-icon"
-							onClick={toggleSortDirection}
-							title="Inverser l'ordre de tri"
-						>
-							{sortDirection === "asc" ? "↑↓" : "↓↑"}
-						</button>
-					</div>
+						<div className="catalog-sort">
+							<span>Trier par :</span>
+							<select
+								value={sortField}
+								onChange={(e) => setSortField(e.target.value as SortField)}
+							>
+								<option value="cost">Coût</option>
+								<option value="name">Nom</option>
+								<option value="attack">Attaque</option>
+								<option value="rarity">Rareté</option>
+							</select>
+							<button
+								type="button"
+								className="btn btn-icon"
+								onClick={toggleSortDirection}
+								title="Inverser l'ordre de tri"
+							>
+								{sortDirection === "asc" ? "↑↓" : "↓↑"}
+							</button>
+						</div>
+					</section>
 
 					<div className="catalog-grid">
 						{filteredCards.map((card) => (

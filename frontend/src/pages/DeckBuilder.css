@@ -111,8 +111,9 @@
 }
 
 .btn-icon {
-	padding: 8px;
-	min-width: 40px;
+	padding: 6px;
+	min-width: 30px;
+	min-height: 30px;
 }
 
 .btn-outline {
@@ -245,7 +246,10 @@
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 }
-
+.all-filters {
+	display: flex;
+	gap: 5em;
+}
 .catalog-empty {
 	grid-column: 1 / -1;
 	text-align: center;
