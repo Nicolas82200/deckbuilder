@@ -291,11 +291,13 @@ export default function DeckBuilder() {
 			};
 
 			if (isEditing) {
-				await axios.put(`/api/decks/${deckId}`, payload, {
+				await axios.put(`http://localhost:3000/api/decks/${deckId}`, payload, {
 					withCredentials: true,
 				});
 			} else {
-				await axios.post("/api/decks", payload, { withCredentials: true });
+				await axios.post("http://localhost:3000/api/decks", payload, {
+					withCredentials: true,
+				});
 			}
 
 			navigate("/decks");
@@ -453,7 +455,10 @@ export default function DeckBuilder() {
 								<span className="mini-card-cost">{card.cost ?? "-"}</span>
 								<div className="mini-card-art">
 									{card.image_path ? (
-										<img src={card.image_path} alt="" />
+										<img
+											src={`http://localhost:3000${card.image_path}`}
+											alt=""
+										/>
 									) : (
 										<span
 											className="mini-card-art-placeholder"
@@ -509,7 +514,10 @@ export default function DeckBuilder() {
 								<div className="deck-list-row" key={entry.card.id}>
 									<div className="deck-list-thumb">
 										{entry.card.image_path ? (
-											<img src={entry.card.image_path} alt="" />
+											<img
+												src={`http://localhost:3000${entry.card.image_path}`}
+												alt=""
+											/>
 										) : (
 											<span aria-hidden="true" />
 										)}

@@ -12,7 +12,7 @@ export default function Card({ card }: CardProps) {
 				{card.image_path ? (
 					<img
 						className="card-art"
-						src={card.image_path}
+						src={`http://localhost:3000${card.image_path}`}
 						alt={`Illustration de la carte ${card.name}`}
 					/>
 				) : (
@@ -44,12 +44,12 @@ export default function Card({ card }: CardProps) {
 				<div className="card-attack-badge">{card.attack ?? "-"}</div>
 				<div className="card-health-badge">{card.hp ?? "-"}</div>
 
-				<img
+				{/* <img
 					className="card-border-frame"
 					src="/assets/borders/demon-border-card.png"
 					alt=""
 					aria-hidden="true"
-				/>
+				/> */}
 			</div>
 		</div>
 	);
