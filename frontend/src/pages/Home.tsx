@@ -17,14 +17,18 @@ const Home = () => {
 
 	useEffect(() => {
 		axios
-			.get("/api/auth/authVerif", { withCredentials: true })
+			.get("http://localhost:3000/api/auth/authVerif", {
+				withCredentials: true,
+			})
 			.then(() => setAuthenticated(true))
 			.catch(() => setAuthenticated(false));
 	}, []);
 
 	const handleLogout = async () => {
 		try {
-			await axios.get("/api/auth/logout", { withCredentials: true });
+			await axios.get("http://localhost:3000/api/auth/logout", {
+				withCredentials: true,
+			});
 			setAuthenticated(false);
 		} catch (err) {
 			console.error(err);

@@ -1,4 +1,4 @@
-import type { RowDataPacket } from "mysql2";
+import type { RowDataPacket, ResultSetHeader } from "mysql2";
 import db from "./db";
 
 import type { Decks } from "../types";
@@ -27,4 +27,45 @@ const findCardsByDeckId = async (deckId: number): Promise<DeckCardRow[]> => {
 	return rows;
 };
 
-export { findByUserId, findCardsByDeckId };
+const findById = async (deckId: number): Promise<DeckRow | null> => {
+	const [rows] = await db.query<DeckRow[]>(
+		"SELECT id, user_id, name, created_at FROM decks WHERE id = ?",
+		[deckId],
+	);
+	return rows[0] ?? null;
+};
+
+const create = async (userId: number, name: string): Promise<number> => {
+	const [result] = await db.query<ResultSetHeader>(
+		"INSERT INTO decks (user_id, name) VALUES (?, ?)",
+		[userId, name],
+	);
+	return result.insertId;
+};
+
+const updateName = async (deckId: number, name: string): Promise<void> => {
+	await db.query("UPDATE decks SET name = ? WHERE id = ?", [name, deckId]);
+};
+
+const replaceCards = async (
+	deckId: number,
+	entries: { cardId: number; quantity: number }[],
+): Promise<void> => {
+	await db.query("DELETE FROM deck_cards WHERE deck_id = ?", [deckId]);
+	if (entries.length === 0) return;
+
+	const values = entries.map((e) => [deckId, e.cardId, e.quantity]);
+	await db.query(
+		"INSERT INTO deck_cards (deck_id, card_id, quantity) VALUES ?",
+		[values],
+	);
+};
+
+export {
+	findByUserId,
+	findCardsByDeckId,
+	findById,
+	create,
+	updateName,
+	replaceCards,
+};

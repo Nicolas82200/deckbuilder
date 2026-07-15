@@ -1,13 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import type { CardData } from "../types";
 import "./DeckBuilder.css";
-
-type DeckBuilderProps = {
-	cards?: CardData[];
-	onBack?: () => void;
-	onSaveDeck?: (payload: { name: string; entries: DeckEntry[] }) => void;
-};
 
 type DeckEntry = {
 	card: CardData;
@@ -28,31 +23,16 @@ const RARITY_ORDER: Record<string, number> = {
 	Légendaire: 3,
 };
 
-export default function DeckBuilder({
-	cards: cardsProp,
-	onBack,
-	onSaveDeck,
-}: DeckBuilderProps) {
-	const [fetchedCards, setFetchedCards] = useState<CardData[]>([]);
-	const [loading, setLoading] = useState(cardsProp === undefined);
+export default function DeckBuilder() {
+	const navigate = useNavigate();
+	const { deckId } = useParams<{ deckId: string }>();
+	const isEditing = Boolean(deckId);
+
+	const [cards, setCards] = useState<CardData[]>([]);
+	const [loading, setLoading] = useState(true);
 	const [fetchError, setFetchError] = useState<string | null>(null);
-
-	useEffect(() => {
-		if (cardsProp !== undefined) return;
-		setLoading(true);
-		axios
-			.get<CardData[]>("/api/cards")
-			.then((response) => setFetchedCards(response.data))
-			.catch((err) => {
-				console.error(err);
-				setFetchError(
-					"Impossible de charger les cartes depuis la base Wyrdane.",
-				);
-			})
-			.finally(() => setLoading(false));
-	}, [cardsProp]);
-
-	const cards = cardsProp ?? fetchedCards;
+	const [saving, setSaving] = useState(false);
+	const [saveError, setSaveError] = useState<string | null>(null);
 
 	const [search, setSearch] = useState("");
 	const [raceFilter, setRaceFilter] = useState("");
@@ -67,6 +47,59 @@ export default function DeckBuilder({
 		null,
 	);
 	const fileInputRef = useRef<HTMLInputElement>(null);
+
+	useEffect(() => {
+		let cancelled = false;
+
+		async function load() {
+			setLoading(true);
+			setFetchError(null);
+			try {
+				const cardsRes = await axios.get<CardData[]>(
+					"http://localhost:3000/api/cards",
+					{
+						withCredentials: true,
+					},
+				);
+				if (cancelled) return;
+				setCards(cardsRes.data);
+
+				if (deckId) {
+					const deckRes = await axios.get(
+						`http://localhost:3000/api/decks/${deckId}`,
+						{
+							withCredentials: true,
+						},
+					);
+					if (cancelled) return;
+					setDeckName(deckRes.data.name);
+					const map = new Map<number, number>();
+					deckRes.data.cards.forEach(
+						(c: { card_id: number; quantity: number }) => {
+							map.set(c.card_id, c.quantity);
+						},
+					);
+					setDeck(map);
+				}
+			} catch (err) {
+				console.error(err);
+				if (!cancelled) {
+					setFetchError(
+						deckId
+							? "Impossible de charger ce deck."
+							: "Impossible de charger les cartes depuis la base Wyrdane.",
+					);
+				}
+			} finally {
+				if (!cancelled) setLoading(false);
+			}
+		}
+
+		load();
+		return () => {
+			cancelled = true;
+		};
+	}, [deckId]);
 
 	const races = useMemo(() => uniqueSorted(cards.map((c) => c.race)), [cards]);
 	const types = useMemo(
@@ -236,15 +269,53 @@ export default function DeckBuilder({
 		e.target.value = "";
 	}
 
-	function handleSave() {
-		onSaveDeck?.({ name: deckName, entries: deckEntries });
+	async function handleSave() {
+		if (!deckName.trim()) {
+			setSaveError("Merci de nommer votre deck.");
+			return;
+		}
+		if (totalCards < MIN_DECK_SIZE) {
+			setSaveError(`Le deck doit contenir au moins ${MIN_DECK_SIZE} cartes.`);
+			return;
+		}
+
+		setSaving(true);
+		setSaveError(null);
+		try {
+			const payload = {
+				name: deckName,
+				entries: deckEntries.map((e) => ({
+					cardId: e.card.id,
+					quantity: e.quantity,
+				})),
+			};
+
+			if (isEditing) {
+				await axios.put(`/api/decks/${deckId}`, payload, {
+					withCredentials: true,
+				});
+			} else {
+				await axios.post("/api/decks", payload, { withCredentials: true });
+			}
+
+			navigate("/decks");
+		} catch (err) {
+			console.error(err);
+			setSaveError("Erreur lors de la sauvegarde du deck.");
+		} finally {
+			setSaving(false);
+		}
+	}
+
+	function handleBack() {
+		navigate("/decks");
 	}
 
 	if (loading) {
 		return (
 			<div className="deckbuilder">
 				<header className="deckbuilder-header">
-					<button type="button" className="btn btn-ghost" onClick={onBack}>
+					<button type="button" className="btn btn-ghost" onClick={handleBack}>
 						<span aria-hidden="true">←</span> Retour
 					</button>
 					<h1>Constructeur de Deck</h1>
@@ -259,7 +330,7 @@ export default function DeckBuilder({
 		return (
 			<div className="deckbuilder">
 				<header className="deckbuilder-header">
-					<button type="button" className="btn btn-ghost" onClick={onBack}>
+					<button type="button" className="btn btn-ghost" onClick={handleBack}>
 						<span aria-hidden="true">←</span> Retour
 					</button>
 					<h1>Constructeur de Deck</h1>
@@ -275,10 +346,10 @@ export default function DeckBuilder({
 	return (
 		<div className="deckbuilder">
 			<header className="deckbuilder-header">
-				<button type="button" className="btn btn-ghost" onClick={onBack}>
+				<button type="button" className="btn btn-ghost" onClick={handleBack}>
 					<span aria-hidden="true">←</span> Retour
 				</button>
-				<h1>Constructeur de Deck</h1>
+				<h1>{isEditing ? "Modifier le Deck" : "Constructeur de Deck"}</h1>
 				<div aria-hidden="true" className="deckbuilder-header-spacer" />
 			</header>
 
@@ -544,12 +615,16 @@ export default function DeckBuilder({
 						/>
 					</div>
 
+					{saveError && <p className="deckbuilder-save-error">{saveError}</p>}
+
 					<button
 						type="button"
 						className="btn btn-primary"
 						onClick={handleSave}
+						disabled={saving}
 					>
-						<span aria-hidden="true">💾</span> Sauvegarder le deck
+						<span aria-hidden="true">💾</span>{" "}
+						{saving ? "Sauvegarde..." : "Sauvegarder le deck"}
 					</button>
 				</aside>
 			</div>

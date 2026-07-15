@@ -19,7 +19,7 @@ const AuthRequire = ({ children }: AuthRequireProps) => {
 				withCredentials: true, // envoie le cookie httpOnly
 			})
 			.then(() => setChecking(false))
-			.catch(() => navigate("/login"));
+			.catch(() => navigate("/decks"));
 	}, [navigate]);
 
 	// Tant qu'on n'a pas la réponse, on n'affiche pas le contenu protégé
